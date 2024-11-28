@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Coach;
 use App\Models\Time;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
@@ -17,7 +18,13 @@ class TimeController extends Controller
 
 public function create()
 {
-    Gate::authorize('create', Time::class);
+    try
+    {
+         Gate::authorize('create', Time::class);
+    } catch(AuthorizationException $e){
+        return redirect()->route('login')->with('error', 'Você não tem permissão para atualizar este post.');
+    }
+   
     $coaches = Coach::all();
     return view('time.create', compact('coaches'));
 }
@@ -57,7 +64,7 @@ public function edit($id)
 
 public function update(Request $request, $id)
 {
-
+     
     Gate::authorize('update', Time::class);
     $time = Time::findOrFail($id);
     $time->update($request->all());
